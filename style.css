@@ -9,6 +9,7 @@ body {
   color: #fafaf9;
   font-family: "Sono", sans-serif;
   padding: 48px 64px;
+  font-weight: 400;
 }
 
 /* LAYOUT */
@@ -81,10 +82,32 @@ h1 {
   padding-top: 3px;
   padding-left: 10px;
   padding-right: 10px;
+  border-radius: 100px;
 }
 
 .vote-buttons {
   margin-left: auto;
+  flex-shrink: 0;
+
+  display: flex;
+  gap: 8px;
+}
+
+.vote-buttons button {
+  border: none;
+  background-color: #78716c;
+  font-size: 18px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  color: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.vote-buttons button:hover {
+  background-color: #292524;
 }
 
 ul {
@@ -113,6 +136,8 @@ ul {
   padding: 16px 0 13px;
   background-image: linear-gradient(135deg, #3b82f6, #ef4444, #16a34a, #eab308);
   color: inherit;
+  border-radius: 100px;
+  cursor: pointer;
   transition: 0.3s;
 }
 
