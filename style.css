@@ -24,17 +24,17 @@ body {
   justify-content: space-between;
 }
 
+.main {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 48px;
+}
+
 .fact-form {
   background-color: #44403c;
   margin-bottom: 40px;
   padding: 16px 40px;
   text-align: center;
-}
-
-.main {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 48px;
 }
 
 /* ELEMENTS */
@@ -54,7 +54,11 @@ h1 {
   text-transform: uppercase;
   font-family: "Coiny", sans-serif;
   line-height: 1;
-  margin-top: 10px;
+  margin-top: 6px;
+}
+
+.category {
+  margin-bottom: 16px;
 }
 
 .fact {
@@ -98,4 +102,35 @@ ul {
 .source:hover,
 .source:active {
   color: #3b82f6;
+}
+
+.btn {
+  border: none;
+  font-family: "Coiny", sans-serif;
+  line-height: 1;
+  text-transform: uppercase;
+  font-size: 17px;
+  padding: 16px 0 13px;
+  background-image: linear-gradient(135deg, #3b82f6, #ef4444, #16a34a, #eab308);
+  color: inherit;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: scale(110%) rotate(-2deg);
+}
+
+.btn-large {
+  font-size: 20px;
+  padding: 20px 32px 17px;
+}
+
+.btn-all-categories {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.btn-category {
+  width: 100%;
+  background-image: none;
 }
