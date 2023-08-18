@@ -52,14 +52,9 @@ function createFactList(dataArray, fl, category_list) {
   fl.insertAdjacentHTML("afterbegin", html);
 }
 
-loadFacts(API_KEY, SUPA_URL).then(
-  (response) => {
-    createFactList(response, facts_list, CATEGORIES);
-  },
-  (err) => {
-    console.log("Failed to connect to SupaBase");
-  }
-);
+const data = await loadFacts(API_KEY, SUPA_URL);
+
+createFactList(data, facts_list, CATEGORIES);
 
 // *************** Toggle form visibility
 
