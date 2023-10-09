@@ -1,0 +1,46 @@
+REACT := JavaScript library for building user interfaces (UI)
+    a. Driven by components
+    b. Declarative
+    c. Driven by State
+
+Component: a piece of the interface, containing both content (html) and functionality (js).  Combine many  components into an applicationg
+
+Declarative: tell React how the UI looks like, but not how to go about creating it [using JSX] -> Never manipulate DOM
+
+State: Any data that the UI / Component is based on.  When we update state variable in component, React will automatically update DOM
+
+============================
+
+create a react app:
+
+npx create-react-app <APPNAME>
+-----8 vulnerabilities (2 moderate, 6 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+Success! Created today-i-learned at C:\Users\ccodi\Documents\prog\WebDevUdemy\FullStackCrashCourse\webapp\today-i-learned
+Inside that directory, you can run several commands:
+
+  npm start
+    Starts the development server.
+
+  npm run build
+    Bundles the app into static files for production.
+
+  npm test
+    Starts the test runner.
+
+  npm run eject
+    Removes this tool and copies build dependencies, configuration files
+    and scripts into the app directory. If you do this, you can’t go back!
+
+We suggest that you begin by typing:
+
+  cd today-i-learned
+  npm start
+
+Happy hacking!
+---------
