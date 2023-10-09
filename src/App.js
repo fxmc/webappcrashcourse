@@ -1,5 +1,7 @@
 import './style.css'
 
+import { CATEGORIES, INITIALFACTS } from './const';
+
 function App() {
   const appTitle = "Today I learned";
 
@@ -32,17 +34,88 @@ function NewFactForm() {
 }
 
 function CategoryFilter() {
+  // TEMPORARY
+  const facts = INITIALFACTS;
+  const category_list = CATEGORIES;
+  
   return (
-    <aside>Category Filter</aside>
+    <aside>
+      <ul>
+        <li className="category">
+          <button className="btn btn-all-categories">All</button>
+        </li>
+        {
+          category_list
+          .filter(
+            (category) => facts.find( 
+              (fact) => {
+                console.log(fact.category, category.name);
+                return fact.category === category.name;
+              }
+            )
+          )
+          .map(
+            (category) => {
+              return (
+                <li className="category">
+                  <button 
+                    className="btn btn-category"
+                    style={{
+                      backgroundColor: category.color
+                    }}
+                  >
+                    {category.name}
+                  </button>
+                </li>
+              )
+            }
+          )
+        }
+      </ul>
+    </aside>
   )
 }
 
 function FactList() {
+  // TEMPORARY
+  const facts = INITIALFACTS;
+  const category_list = CATEGORIES;
+
   return (
       <section>
-        Facts List
+        <ul className="facts-list">
+          {
+            facts.map(
+              (fact) => (
+                  <li className="fact">
+                    <p>
+                      {fact.text}
+                      <a
+                        className="source"
+                        href={fact.source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >(Source)</a>
+                    </p>
+                    <span 
+                      className="tag"
+                      style={{
+                        backgroundColor:
+                        category_list.find((value) => {return value.name === fact.category}).color 
+                      }}
+                    >{fact.category}</span>
+                    <div className="vote-buttons">
+                      <button>👍 {fact.votesInteresting}</button>
+                      <button>🤯 {fact.votesMindblowing}</button>
+                      <button>⛔️ {fact.votesFalse}</button>
+                    </div>                      
+                  </li>
+                )
+            )
+          }
+        </ul>
       </section>
-  )
+  );
 }
 
 export default App;
