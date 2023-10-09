@@ -44,3 +44,7 @@ We suggest that you begin by typing:
 
 Happy hacking!
 ---------
+
+./node_modules contains all the npm package that were installed
+./public       
+./src
