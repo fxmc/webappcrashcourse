@@ -52,7 +52,6 @@ function App() {
 
       {showForm ? (
         <NewFactForm
-          factList={factList}
           setFactList={setFactList}
           categoryList={categoryList}
           setShowForm={setShowForm}
@@ -64,7 +63,6 @@ function App() {
           <Loader />
         ) : (
           <CategoryFilter
-            facts={factList}
             categoryList={categoryList}
             setCurrentCategory={setCurrentCategory}
           />
@@ -116,17 +114,18 @@ function isValidHttpUrl(string) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 
-function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
+function NewFactForm({ setFactList, categoryList, setShowForm }) {
   const category_list = categoryList;
-  const initial_facts = factList;
   const max_text_length = 200;
 
   const [text, setText] = useState("");
   const [source, setSource] = useState("");
   const [category, setCategory] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
   const textLength = text.length;
 
-  function handleSubmit(evtObj) {
+  async function handleSubmit(evtObj) {
     // 1. Prevent the browser to reload
     evtObj.preventDefault();
     console.log(text, source, category);
@@ -138,22 +137,18 @@ function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
       category &&
       textLength <= max_text_length
     ) {
-      // 3. Create a new fact object
-      const newFact = {
-        id: initial_facts.length + 1,
-        text,
-        source,
-        category,
-        votesInteresting: 0,
-        votesMindblowing: 0,
-        votesFalse: 0,
-        createdIn: new Date().getFullYear(),
-      };
+      // 3. Upload fact to Supabase and receive the new fact object
+      setIsUploading(true);
+      const { data: newFact, error } = await supabase
+        .from("facts")
+        .insert([{ text, source, category }])
+        .select();
+      setIsUploading(false);
 
       // 4. Add the new fact to the UI: add the fact o state
       //setFactList(initial_facts.concat([newFact]));
       // setFactList((facts) => [newFact].concat(facts));
-      setFactList((facts) => [newFact, ...facts]);
+      setFactList((facts) => [newFact[0], ...facts]);
 
       // 5. Reset input fields to be empty
       setText("");
@@ -175,6 +170,7 @@ function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
         onChange={(evtObj) => {
           setText(evtObj.target.value);
         }}
+        disabled={isUploading}
       />
       <span>{max_text_length - textLength}</span>
       <input
@@ -185,6 +181,7 @@ function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
         onChange={(evtObj) => {
           setSource(evtObj.target.value);
         }}
+        disabled={isUploading}
       />
       <select
         name="category_selector"
@@ -192,13 +189,16 @@ function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
         onChange={(evtObj) => {
           setCategory(evtObj.target.value);
         }}
+        disabled={isUploading}
       >
         <option value="">Choose Category:</option>
         {category_list.map((cat) => (
           <Option key={cat.name} category={cat} />
         ))}
       </select>
-      <button className="btn btn-large">Post</button>
+      <button className="btn btn-large" disabled={isUploading}>
+        Post
+      </button>
     </form>
   );
 }
@@ -207,7 +207,7 @@ function Option({ category }) {
   return <option value={category.name}>{category.name.toUpperCase()}</option>;
 }
 
-function CategoryFilter({ facts, categoryList, setCurrentCategory }) {
+function CategoryFilter({ categoryList, setCurrentCategory }) {
   const category_list = categoryList;
 
   return (
@@ -215,19 +215,13 @@ function CategoryFilter({ facts, categoryList, setCurrentCategory }) {
       <ul>
         <AllCategory key="0" setCurrentCategory={setCurrentCategory} />
 
-        {category_list
-          // .filter((category) =>
-          //   facts.find((fact) => {
-          //     return fact.category === category.name;
-          //   })
-          // )
-          .map((category) => (
-            <Category
-              key={category.name}
-              category={category}
-              setCurrentCategory={setCurrentCategory}
-            />
-          ))}
+        {category_list.map((category) => (
+          <Category
+            key={category.name}
+            category={category}
+            setCurrentCategory={setCurrentCategory}
+          />
+        ))}
       </ul>
     </aside>
   );
