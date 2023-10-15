@@ -8,14 +8,20 @@ function App() {
   const [categoryList, setCategoryList] = useState([]);
   const [isLoadingFacts, setIsLoadingFacts] = useState(false);
   const [isLoadingCat, setIsLoadingCat] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState("all");
 
   // Gets called upon the first rendering and only then
   useEffect(() => {
     async function getFacts() {
       setIsLoadingFacts(true);
-      let { data: facts, error } = await supabase
-        .from("facts")
-        .select("*")
+
+      let query = supabase.from("facts").select("*");
+
+      if (currentCategory !== "all") {
+        query = query.eq("category", currentCategory);
+      }
+
+      let { data: facts, error } = await query
         .order("votesInteresting", { ascending: false })
         .limit(100);
 
@@ -24,7 +30,7 @@ function App() {
       setIsLoadingFacts(false);
     }
     getFacts();
-  }, []);
+  }, [currentCategory]);
 
   useEffect(() => {
     async function getCategories() {
@@ -57,7 +63,11 @@ function App() {
         {isLoadingCat ? (
           <Loader />
         ) : (
-          <CategoryFilter facts={factList} categoryList={categoryList} />
+          <CategoryFilter
+            facts={factList}
+            categoryList={categoryList}
+            setCurrentCategory={setCurrentCategory}
+          />
         )}
         {isLoadingFacts || isLoadingCat ? (
           <Loader />
@@ -109,7 +119,7 @@ function isValidHttpUrl(string) {
 function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
   const category_list = categoryList;
   const initial_facts = factList;
-  const max_text_length = 20;
+  const max_text_length = 200;
 
   const [text, setText] = useState("");
   const [source, setSource] = useState("");
@@ -197,37 +207,46 @@ function Option({ category }) {
   return <option value={category.name}>{category.name.toUpperCase()}</option>;
 }
 
-function CategoryFilter({ facts, categoryList }) {
+function CategoryFilter({ facts, categoryList, setCurrentCategory }) {
   const category_list = categoryList;
 
   return (
     <aside>
       <ul>
-        <AllCategory key="0" />
+        <AllCategory key="0" setCurrentCategory={setCurrentCategory} />
 
         {category_list
-          .filter((category) =>
-            facts.find((fact) => {
-              return fact.category === category.name;
-            })
-          )
+          // .filter((category) =>
+          //   facts.find((fact) => {
+          //     return fact.category === category.name;
+          //   })
+          // )
           .map((category) => (
-            <Category key={category.name} category={category} />
+            <Category
+              key={category.name}
+              category={category}
+              setCurrentCategory={setCurrentCategory}
+            />
           ))}
       </ul>
     </aside>
   );
 }
 
-function AllCategory() {
+function AllCategory({ setCurrentCategory }) {
   return (
     <li className="category">
-      <button className="btn btn-all-categories">All</button>
+      <button
+        className="btn btn-all-categories"
+        onClick={() => setCurrentCategory("all")}
+      >
+        All
+      </button>
     </li>
   );
 }
 
-function Category({ category }) {
+function Category({ category, setCurrentCategory }) {
   return (
     <li className="category">
       <button
@@ -235,6 +254,7 @@ function Category({ category }) {
         style={{
           backgroundColor: category.color,
         }}
+        onClick={() => setCurrentCategory(category.name)}
       >
         {category.name}
       </button>
@@ -244,6 +264,14 @@ function Category({ category }) {
 
 function FactList({ facts, categoryList }) {
   const category_list = categoryList;
+
+  if (facts.length === 0) {
+    return (
+      <p className="message">
+        No facts for this category yet! Create the first one! ✌️
+      </p>
+    );
+  }
 
   return (
     <section>
