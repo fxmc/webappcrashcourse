@@ -1,24 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "./supabase";
 import "./style.css";
-
-import { CATEGORIES, INITIALFACTS } from "./const";
-
-// function Counter() {
-//   const [count, setCount] = useState(0);
-
-//   return (
-//     <div>
-//       <span style={{ fontSize: "40px" }}>{count}</span>
-//       <button className="btn btn-large" onClick={() => setCount((c) => c + 1)}>
-//         +1
-//       </button>
-//     </div>
-//   );
-// }
 
 function App() {
   const [showForm, setShowForm] = useState(false);
-  const [factList, setFactList] = useState(INITIALFACTS);
+  const [factList, setFactList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [isLoadingFacts, setIsLoadingFacts] = useState(false);
+  const [isLoadingCat, setIsLoadingCat] = useState(false);
+
+  // Gets called upon the first rendering and only then
+  useEffect(() => {
+    async function getFacts() {
+      setIsLoadingFacts(true);
+      let { data: facts, error } = await supabase
+        .from("facts")
+        .select("*")
+        .order("votesInteresting", { ascending: false })
+        .limit(100);
+
+      if (!error) setFactList(facts);
+      else alert("There was a problem getting data!");
+      setIsLoadingFacts(false);
+    }
+    getFacts();
+  }, []);
+
+  useEffect(() => {
+    async function getCategories() {
+      setIsLoadingCat(true);
+      let { data: categories, error } = await supabase
+        .from("categories")
+        .select("name, color");
+
+      if (!error) setCategoryList(categories);
+      else alert("There was a problem getting categories!");
+      setIsLoadingCat(false);
+    }
+    getCategories();
+  }, []);
 
   return (
     <>
@@ -28,16 +48,29 @@ function App() {
         <NewFactForm
           factList={factList}
           setFactList={setFactList}
+          categoryList={categoryList}
           setShowForm={setShowForm}
         />
       ) : null}
 
       <main className="main">
-        <CategoryFilter />
-        <FactList facts={factList} />
+        {isLoadingCat ? (
+          <Loader />
+        ) : (
+          <CategoryFilter facts={factList} categoryList={categoryList} />
+        )}
+        {isLoadingFacts || isLoadingCat ? (
+          <Loader />
+        ) : (
+          <FactList facts={factList} categoryList={categoryList} />
+        )}
       </main>
     </>
   );
+}
+
+function Loader() {
+  return <p className="message">Loading...</p>;
 }
 
 function Header({ showForm, setShowForm }) {
@@ -73,8 +106,8 @@ function isValidHttpUrl(string) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 
-function NewFactForm({ factList, setFactList, setShowForm }) {
-  const category_list = CATEGORIES;
+function NewFactForm({ factList, setFactList, categoryList, setShowForm }) {
+  const category_list = categoryList;
   const initial_facts = factList;
   const max_text_length = 20;
 
@@ -164,9 +197,8 @@ function Option({ category }) {
   return <option value={category.name}>{category.name.toUpperCase()}</option>;
 }
 
-function CategoryFilter() {
-  const facts = INITIALFACTS;
-  const category_list = CATEGORIES;
+function CategoryFilter({ facts, categoryList }) {
+  const category_list = categoryList;
 
   return (
     <aside>
@@ -210,8 +242,8 @@ function Category({ category }) {
   );
 }
 
-function FactList({ facts }) {
-  const category_list = CATEGORIES;
+function FactList({ facts, categoryList }) {
+  const category_list = categoryList;
 
   return (
     <section>
