@@ -18,15 +18,23 @@ import { CATEGORIES, INITIALFACTS } from "./const";
 
 function App() {
   const [showForm, setShowForm] = useState(false);
+  const [factList, setFactList] = useState(INITIALFACTS);
+
   return (
     <>
       <Header showForm={showForm} setShowForm={setShowForm} />
 
-      {showForm ? <NewFactForm /> : null}
+      {showForm ? (
+        <NewFactForm
+          factList={factList}
+          setFactList={setFactList}
+          setShowForm={setShowForm}
+        />
+      ) : null}
 
       <main className="main">
         <CategoryFilter />
-        <FactList />
+        <FactList facts={factList} />
       </main>
     </>
   );
@@ -54,9 +62,21 @@ function Header({ showForm, setShowForm }) {
   );
 }
 
-function NewFactForm() {
+function isValidHttpUrl(string) {
+  // Solution from StackOverflow
+  let url;
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+
+function NewFactForm({ factList, setFactList, setShowForm }) {
   const category_list = CATEGORIES;
-  const max_text_length = 200;
+  const initial_facts = factList;
+  const max_text_length = 20;
 
   const [text, setText] = useState("");
   const [source, setSource] = useState("");
@@ -64,8 +84,42 @@ function NewFactForm() {
   const textLength = text.length;
 
   function handleSubmit(evtObj) {
+    // 1. Prevent the browser to reload
     evtObj.preventDefault();
     console.log(text, source, category);
+
+    // 2. Check if valid is valid.  If so, create a new fact
+    if (
+      text &&
+      isValidHttpUrl(source) &&
+      category &&
+      textLength <= max_text_length
+    ) {
+      // 3. Create a new fact object
+      const newFact = {
+        id: initial_facts.length + 1,
+        text,
+        source,
+        category,
+        votesInteresting: 0,
+        votesMindblowing: 0,
+        votesFalse: 0,
+        createdIn: new Date().getFullYear(),
+      };
+
+      // 4. Add the new fact to the UI: add the fact o state
+      //setFactList(initial_facts.concat([newFact]));
+      // setFactList((facts) => [newFact].concat(facts));
+      setFactList((facts) => [newFact, ...facts]);
+
+      // 5. Reset input fields to be empty
+      setText("");
+      setSource("");
+      setCategory("");
+
+      // 6. Close the form
+      setShowForm(false);
+    }
   }
 
   return (
@@ -79,7 +133,7 @@ function NewFactForm() {
           setText(evtObj.target.value);
         }}
       />
-      <span>{200 - textLength}</span>
+      <span>{max_text_length - textLength}</span>
       <input
         name="fact_source_field"
         type="text"
@@ -156,8 +210,7 @@ function Category({ category }) {
   );
 }
 
-function FactList() {
-  const facts = INITIALFACTS;
+function FactList({ facts }) {
   const category_list = CATEGORIES;
 
   return (
