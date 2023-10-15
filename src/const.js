@@ -50,6 +50,6 @@ export const INITIALFACTS = [
     votesInteresting: 11,
     votesMindblowing: 5,
     votesFalse: 2,
-    createdIn: 2020
-  }
+    createdIn: 2020,
+  },
 ];
